@@ -89,6 +89,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
+      - name: Clear stale pip cache
+        run: rm -rf ~/Library/Caches/pip
       - name: Set up Python 3.9
         uses: actions/setup-python@v6
         with:
