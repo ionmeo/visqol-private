@@ -1,6 +1,6 @@
 --- a/third_party/py/python_configure.bzl
 +++ b/third_party/py/python_configure.bzl
-@@ -155,11 +155,9 @@
+@@ -155,11 +155,8 @@
              python_bin,
              "-Wignore",
              "-c",
