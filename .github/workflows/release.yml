@@ -39,7 +39,7 @@ jobs:
         if: inputs.overwrite == false
         run: |
           if gh release view ${{ inputs.tag }} --repo $REPO 2>/dev/null; then
-            echo "::error::Release ${{ inputs.tag }} already exists. Use overwrite=true to replace."
+            echo "::error::Release ${{ inputs.tag }} already exists. Must have overwrite=true."
             exit 1
           fi
 
@@ -47,7 +47,7 @@ jobs:
         if: inputs.overwrite == true
         run: |
           if ! gh release view ${{ inputs.tag }} --repo $REPO &>/dev/null; then
-            echo "::error::Release ${{ inputs.tag }} does not exist. Use overwrite=false to create it."
+            echo "::error::Release ${{ inputs.tag }} does not exist. Do not set overwrite=true."
             exit 1
           fi
 
@@ -56,17 +56,17 @@ jobs:
         run: |
           RUN_ID=$(gh run list --repo $REPO --workflow=ci.yml --branch $BRANCH --status=success --limit=1 --json databaseId -q '.[0].databaseId')
           if [ -z "$RUN_ID" ]; then
-            echo "::error::No successful build runs found"
+            echo "::error::No successful build runs found."
             exit 1
           fi
-          # A run that does not have artifact of every platform can only update an existing release.
+          # If latest-run does not have artifact of every platform, must have overwrite=true
           NAMES=$(gh api repos/$REPO/actions/runs/$RUN_ID/artifacts --jq '.artifacts[].name')
           MISSING=""
           for P in $PLATFORMS; do
             echo "$NAMES" | grep -q "^${PREFIX}-${P}$" || MISSING="$MISSING $PREFIX-$P"
           done
           if [ -n "$MISSING" ] && [ "${{ inputs.overwrite }}" != "true" ]; then
-            echo "::error::Run $RUN_ID has no artifacts for:$MISSING. Use overwrite=true to update the other platforms."
+            echo "::error::RUN_ID $RUN_ID does not have any artifact for:$MISSING. Use overwrite=true to update the other platforms."
             exit 1
           fi
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
@@ -87,7 +87,7 @@ jobs:
               exit 0
             fi
           done
-          echo "::error::No run with all 6 artifacts in the last 20 runs"
+          echo "::error::There are no run with all 6 artifacts in the last 20 runs."
           exit 1
 
       - name: Collect artifacts (latest-per-platform)
@@ -106,7 +106,7 @@ jobs:
               fi
             done
             if [ "$FOUND" = false ]; then
-              echo "::error::No artifact found for $PREFIX-$P in the last 20 runs"
+              echo "::error::No artifact found for $PREFIX-$P in the last 20 runs."
               exit 1
             fi
           done
@@ -121,7 +121,7 @@ jobs:
               echo "Downloading $PLATFORM from run $RUN_ID..."
               gh run download $RUN_ID --repo $REPO --name "$PLATFORM" --dir "artifacts/$PLATFORM"
             done
-            # Tag the latest commit among artifact builds
+            # Tag the latest commit among the artifact builds
             LATEST_RUN=$(for ENTRY in $DOWNLOADS; do echo "${ENTRY##*:}"; done | sort -n | tail -1)
             COMMIT_SHA=$(gh run view $LATEST_RUN --repo $REPO --json headSha -q .headSha)
           else
