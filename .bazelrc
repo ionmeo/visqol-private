@@ -61,7 +61,7 @@ build --enable_platform_specific_config
 
 
 ## macOS config
-# Target macOS 11 as it is the first version to support ARM-based Macs
+# macOS 11 is the first version to support ARM-based Macs
 build:macos --macos_minimum_os=11.0
 
 

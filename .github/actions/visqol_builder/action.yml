@@ -70,12 +70,11 @@ runs:
             command -v "python$1"
           fi
         }
+        path_sep=":"
         if [[ "${{inputs.platform}}" == "windows" ]]; then
           path_sep=";"
-        else
-          path_sep=":"
         fi
-        mkdir -p action-product/python
+        mkdir action-product/python
         cp bazel-bin/*_pb2.py action-product/python/
         for version in $PYTHON_VERSIONS; do
           python_bin=$(find_python "$version")
@@ -84,7 +83,7 @@ runs:
           bazelisk build -c opt python:visqol_lib_py.so --repo_env=PYTHON_BIN_PATH="$python_bin" ${{inputs.build-options}}
           suffix=$("$python_bin" -c 'import sysconfig; print(sysconfig.get_config_var("EXT_SUFFIX"))')
           cp bazel-bin/python/visqol_lib_py.so "action-product/python/visqol_lib_py$suffix"
-          PYTHONPATH="action-product${path_sep}action-product/python" "$python_bin" python/visqol_lib_py_test.py
+          PYTHONPATH="action-product${path_sep}action-product/python" "$python_bin" -B python/visqol_lib_py_test.py
           echo "::endgroup::"
         done
     - uses: actions/upload-artifact@v6
