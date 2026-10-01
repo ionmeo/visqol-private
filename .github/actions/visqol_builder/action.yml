@@ -29,11 +29,10 @@ runs:
   using: composite
   steps:
     - shell: bash
-      run: |
-        bazelisk test -c opt :all ${{inputs.build-options}}
+      run: python -m pip install numpy    # for TensorFlow
     - shell: bash
       run: |
-        bazelisk build -c opt :all ${{inputs.build-options}}
+        bazelisk test -c opt :all ${{inputs.build-options}}
     - shell: bash
       run: |
         mkdir -p action-product/model
