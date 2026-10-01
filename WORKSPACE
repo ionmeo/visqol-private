@@ -26,7 +26,7 @@ http_archive(
 )
 
 # We still require the pybind library.
-# pybind11 3.0.x is the latest version that supports Python 3.8 to 3.14.
+# pybind11 3.0.x is the last version that supports Python 3.8 to 3.14.
 http_archive(
     name = "pybind11",
     build_file = "@pybind11_bazel//:pybind11.BUILD",
@@ -71,8 +71,7 @@ http_archive(
     urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.19.1.tar.gz"],
 )
 
-# GoogleTest/GoogleMock framework.
-# GoogleTest v1.11.0+ fixes @bazel_tools//platforms:windows constraint error
+# GoogleTest v1.11.0 fixes @bazel_tools//platforms:windows constraint error
 # by using @platforms//os:windows instead. It is imported before TensorFlow
 # to prevent TF from using the older incompatible version.
 git_repository(
@@ -83,8 +82,8 @@ git_repository(
 
 # Import zlib 1.3.2 before TensorFlow to override TF's bundled zlib 1.2.13 
 # which defines a fdopen macro that conflicts with newer macOS SDK headers.
-# zlib 1.3.2 is also the first release to include BUILD.bazel file, making
-# integration with VISQOL easier.
+# zlib 1.3.2 is also the first release to include the BUILD.bazel file, 
+# making integration with VISQOL easier.
 git_repository(
     name = "zlib",
     remote = "https://github.com/madler/zlib.git",
@@ -92,8 +91,8 @@ git_repository(
 )
 
 # Import cpuinfo before TensorFlow to override TF's bundled version (commit 5e63739),
-# which lacks windows-arm64 support. Commit ff24ffe is the last commit before the
-# BUILD.bazel was modified for Bazel 9 compatibility, and bumping past it breaks the build.
+# which lacks windows-arm64 support. Commit ff24ffe is the last commit before BUILD.bazel
+# file was modified for Bazel 9 compatibility, and bumping past it breaks the build.
 git_repository(
     name = "cpuinfo",
     remote = "https://github.com/pytorch/cpuinfo.git",
